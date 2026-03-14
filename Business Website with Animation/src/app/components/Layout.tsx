@@ -20,6 +20,8 @@ import {
   CheckCircle2,
   CreditCard,
   Loader2,
+  Wallet,
+  ArrowLeft,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -46,20 +48,33 @@ export function Layout() {
   const { user, isAuthenticated, logout } = useAuth();
   const { items: cartItems, totalItems, totalPrice, removeItem, updateQuantity, clearCart } = useCart();
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const [checkoutStatus, setCheckoutStatus] = useState<"idle" | "processing" | "success">("idle");
+  const [checkoutStatus, setCheckoutStatus] = useState<"cart" | "details" | "processing" | "success">("cart");
+  const [addressForm, setAddressForm] = useState({ name: "", phone: "", address: "", zip: "" });
 
-  const handleCheckout = () => {
+  const handleProceedToDetails = () => setCheckoutStatus("details");
+
+  const handlePayNow = () => {
+    if (!addressForm.name || !addressForm.phone || !addressForm.address || !addressForm.zip) {
+      alert("Please fill in all delivery details");
+      return;
+    }
     setCheckoutStatus("processing");
     // Simulate Razorpay payment modal delay
     setTimeout(() => {
       setCheckoutStatus("success");
       setTimeout(() => {
-        setCheckoutStatus("idle");
+        setCheckoutStatus("cart");
         clearCart();
         setCartOpen(false);
-      }, 2000);
+      }, 2500);
     }, 2000);
   };
+
+  useEffect(() => {
+    if (cartOpen) {
+      setCheckoutStatus("cart");
+    }
+  }, [cartOpen]);
 
   // Mark splash as done after animation
   useEffect(() => {
@@ -626,9 +641,22 @@ export function Layout() {
                 style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
               >
                 <div className="flex items-center gap-3">
-                  <ShoppingCart className="w-5 h-5 text-green-400" />
-                  <h2 className="text-white text-lg font-semibold">Your Cart</h2>
-                  {totalItems > 0 && (
+                  {checkoutStatus === "details" ? (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setCheckoutStatus("cart")}
+                      className="text-white/60 hover:text-white"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </motion.button>
+                  ) : (
+                    <ShoppingCart className="w-5 h-5 text-green-400" />
+                  )}
+                  <h2 className="text-white text-lg font-semibold">
+                    {checkoutStatus === "details" ? "Checkout" : "Your Cart"}
+                  </h2>
+                  {totalItems > 0 && checkoutStatus === "cart" && (
                     <span
                       className="px-2 py-0.5 rounded-full text-xs text-white"
                       style={{ background: "linear-gradient(135deg, #16a34a, #4ade80)" }}
@@ -648,10 +676,11 @@ export function Layout() {
                 </motion.button>
               </div>
 
-              {/* Cart Items */}
+              {/* Drawer Content */}
               <div className="flex-1 overflow-y-auto px-6 py-4">
-                {cartItems.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
+                {checkoutStatus === "cart" && (
+                  cartItems.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center">
                     <div
                       className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
                       style={{ background: "rgba(74,222,128,0.1)" }}
@@ -716,11 +745,129 @@ export function Layout() {
                       </motion.div>
                     ))}
                   </div>
+                  )
+                )}
+
+                {checkoutStatus === "details" && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="space-y-6"
+                  >
+                    {/* Delivery Address */}
+                    <div>
+                      <h3 className="text-white text-sm font-medium mb-3 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-green-400" /> Delivery Address
+                      </h3>
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          placeholder="Full Name"
+                          value={addressForm.name}
+                          onChange={(e) => setAddressForm({ ...addressForm, name: e.target.value })}
+                          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/30 outline-none"
+                          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                        />
+                        <input
+                          type="tel"
+                          placeholder="Phone Number"
+                          value={addressForm.phone}
+                          onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
+                          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/30 outline-none"
+                          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                        />
+                        <textarea
+                          placeholder="Street Address & Area"
+                          rows={2}
+                          value={addressForm.address}
+                          onChange={(e) => setAddressForm({ ...addressForm, address: e.target.value })}
+                          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/30 outline-none resize-none"
+                          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            type="text"
+                            placeholder="City / State"
+                            defaultValue="Mumbai, MH"
+                            className="w-full px-3 py-2.5 rounded-xl text-sm text-white/50 outline-none"
+                            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+                            readOnly
+                          />
+                          <input
+                            type="text"
+                            placeholder="Pincode"
+                            maxLength={6}
+                            value={addressForm.zip}
+                            onChange={(e) => setAddressForm({ ...addressForm, zip: e.target.value.replace(/\\D/g, "") })}
+                            className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/30 outline-none"
+                            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Payment Method */}
+                    <div>
+                      <h3 className="text-white text-sm font-medium mb-3 flex items-center gap-2">
+                        <Wallet className="w-4 h-4 text-green-400" /> Payment Options
+                      </h3>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-3 p-3 rounded-xl cursor-default" style={{ background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.3)" }}>
+                          <input type="radio" checked readOnly className="accent-green-500" />
+                          <div>
+                            <div className="text-white text-sm font-medium">Razorpay</div>
+                            <div className="text-white/50 text-xs">UPI, Cards, Wallets, NetBanking</div>
+                          </div>
+                        </label>
+                        <div className="flex items-center gap-3 p-3 rounded-xl opacity-50 cursor-not-allowed" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                          <input type="radio" disabled />
+                          <div>
+                            <div className="text-white text-sm font-medium">Cash on Delivery</div>
+                            <div className="text-white/50 text-xs text-red-400">Not available for live plants</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {(checkoutStatus === "processing" || checkoutStatus === "success") && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center justify-center h-full text-center"
+                  >
+                    {checkoutStatus === "processing" ? (
+                      <>
+                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="mb-6">
+                          <div className="w-16 h-16 rounded-full border-4 border-green-500/20 border-t-green-500" />
+                        </motion.div>
+                        <h3 className="text-white text-xl font-medium mb-2">Processing Payment...</h3>
+                        <p className="text-white/50 text-sm">Please do not close this window or press back.</p>
+                      </>
+                    ) : (
+                      <>
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: [0, 1.2, 1] }}
+                          transition={{ type: "spring", damping: 15 }}
+                          className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+                          style={{ background: "linear-gradient(135deg, #16a34a, #4ade80)", boxShadow: "0 0 40px rgba(74,222,128,0.4)" }}
+                        >
+                          <CheckCircle2 className="w-10 h-10 text-white" />
+                        </motion.div>
+                        <h3 className="text-white text-xl font-medium mb-2">Order Confirmed! 🌿</h3>
+                        <p className="text-white/50 text-sm text-center">
+                          Payment successful. Your botanical treasures are being carefully prepped for dispatch from {addressForm.zip}.
+                        </p>
+                      </>
+                    )}
+                  </motion.div>
                 )}
               </div>
 
               {/* Footer */}
-              {cartItems.length > 0 && (
+              {cartItems.length > 0 && checkoutStatus !== "processing" && checkoutStatus !== "success" && (
                 <div
                   className="px-6 py-5 space-y-4"
                   style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
@@ -729,45 +876,44 @@ export function Layout() {
                     <span className="text-white/50 text-sm">Subtotal</span>
                     <span className="text-white text-lg font-semibold">₹{totalPrice}</span>
                   </div>
-                  <motion.button
-                    onClick={handleCheckout}
-                    disabled={checkoutStatus !== "idle"}
-                    whileHover={checkoutStatus === "idle" ? { scale: 1.02, boxShadow: "0 0 30px rgba(74,222,128,0.4)" } : {}}
-                    whileTap={checkoutStatus === "idle" ? { scale: 0.98 } : {}}
-                    className="w-full py-3.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2"
-                    style={{
-                      background: checkoutStatus === "success" 
-                        ? "#16a34a" 
-                        : "linear-gradient(135deg, #16a34a, #4ade80)",
-                      boxShadow: "0 4px 20px rgba(74,222,128,0.3)",
-                      opacity: checkoutStatus === "processing" ? 0.8 : 1
-                    }}
-                  >
-                    {checkoutStatus === "idle" && (
-                      <>
-                        <CreditCard className="w-4 h-4" />
-                        Pay with Razorpay — ₹{totalPrice}
-                      </>
-                    )}
-                    {checkoutStatus === "processing" && (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Processing Payment...
-                      </>
-                    )}
-                    {checkoutStatus === "success" && (
-                      <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        Payment Successful!
-                      </>
-                    )}
-                  </motion.button>
-                  <button
-                    onClick={clearCart}
-                    className="w-full py-2 text-white/30 text-xs hover:text-red-400 transition-colors"
-                  >
-                    Clear Cart
-                  </button>
+                  
+                  {checkoutStatus === "cart" ? (
+                    <motion.button
+                      onClick={handleProceedToDetails}
+                      whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(74,222,128,0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full py-3.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2"
+                      style={{
+                        background: "linear-gradient(135deg, #16a34a, #4ade80)",
+                        boxShadow: "0 4px 20px rgba(74,222,128,0.3)",
+                      }}
+                    >
+                      Proceed to Checkout — ₹{totalPrice}
+                    </motion.button>
+                  ) : (
+                    <motion.button
+                      onClick={handlePayNow}
+                      whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(74,222,128,0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full py-3.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2"
+                      style={{
+                        background: "linear-gradient(135deg, #16a34a, #4ade80)",
+                        boxShadow: "0 4px 20px rgba(74,222,128,0.3)",
+                      }}
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      Pay with Razorpay — ₹{totalPrice}
+                    </motion.button>
+                  )}
+
+                  {checkoutStatus === "cart" && (
+                    <button
+                      onClick={clearCart}
+                      className="w-full py-2 text-white/30 text-xs hover:text-red-400 transition-colors"
+                    >
+                      Clear Cart
+                    </button>
+                  )}
                 </div>
               )}
             </motion.div>
