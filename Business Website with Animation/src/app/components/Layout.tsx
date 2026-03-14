@@ -17,6 +17,9 @@ import {
   LogIn,
   LogOut,
   User,
+  CheckCircle2,
+  CreditCard,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -43,6 +46,20 @@ export function Layout() {
   const { user, isAuthenticated, logout } = useAuth();
   const { items: cartItems, totalItems, totalPrice, removeItem, updateQuantity, clearCart } = useCart();
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [checkoutStatus, setCheckoutStatus] = useState<"idle" | "processing" | "success">("idle");
+
+  const handleCheckout = () => {
+    setCheckoutStatus("processing");
+    // Simulate Razorpay payment modal delay
+    setTimeout(() => {
+      setCheckoutStatus("success");
+      setTimeout(() => {
+        setCheckoutStatus("idle");
+        clearCart();
+        setCartOpen(false);
+      }, 2000);
+    }, 2000);
+  };
 
   // Mark splash as done after animation
   useEffect(() => {
@@ -713,15 +730,37 @@ export function Layout() {
                     <span className="text-white text-lg font-semibold">₹{totalPrice}</span>
                   </div>
                   <motion.button
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(74,222,128,0.4)" }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full py-3.5 rounded-xl text-white text-sm font-semibold"
+                    onClick={handleCheckout}
+                    disabled={checkoutStatus !== "idle"}
+                    whileHover={checkoutStatus === "idle" ? { scale: 1.02, boxShadow: "0 0 30px rgba(74,222,128,0.4)" } : {}}
+                    whileTap={checkoutStatus === "idle" ? { scale: 0.98 } : {}}
+                    className="w-full py-3.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2"
                     style={{
-                      background: "linear-gradient(135deg, #16a34a, #4ade80)",
+                      background: checkoutStatus === "success" 
+                        ? "#16a34a" 
+                        : "linear-gradient(135deg, #16a34a, #4ade80)",
                       boxShadow: "0 4px 20px rgba(74,222,128,0.3)",
+                      opacity: checkoutStatus === "processing" ? 0.8 : 1
                     }}
                   >
-                    Checkout — ₹{totalPrice}
+                    {checkoutStatus === "idle" && (
+                      <>
+                        <CreditCard className="w-4 h-4" />
+                        Pay with Razorpay — ₹{totalPrice}
+                      </>
+                    )}
+                    {checkoutStatus === "processing" && (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Processing Payment...
+                      </>
+                    )}
+                    {checkoutStatus === "success" && (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        Payment Successful!
+                      </>
+                    )}
                   </motion.button>
                   <button
                     onClick={clearCart}
@@ -779,7 +818,7 @@ export function Layout() {
                 </span>
               </div>
               <p className="text-white/50 text-sm leading-relaxed mb-6">
-                Bringing nature's finest directly to your doorstep — grown with love in India's prestigious government
+                Bringing nature's finest directly to your doorstep — grown with love in India's prestigious
                 botanical gardens.
               </p>
               <div className="flex gap-3">

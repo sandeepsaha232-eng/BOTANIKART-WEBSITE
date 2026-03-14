@@ -67,7 +67,7 @@ const posts = [
   },
   {
     id: 5,
-    title: "5 Rare Exotic Plants Available Only from Government Gardens",
+    title: "5 Rare Exotic Plants Available Only from Botanical Gardens",
     excerpt: "Did you know India's botanical gardens house plant species not found anywhere else commercially? Here are 5 extraordinary species now available through BOTANIKART.",
     category: "Rare & Exotic",
     author: "Arjun Nair",

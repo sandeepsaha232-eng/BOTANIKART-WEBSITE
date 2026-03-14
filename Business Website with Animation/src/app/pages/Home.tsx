@@ -61,8 +61,8 @@ const stats = [
 const features = [
   {
     icon: BadgeCheck,
-    title: "Govt. Garden Certified",
-    desc: "Every plant grown under expert supervision in India's prestigious government botanical gardens.",
+    title: "Garden Certified",
+    desc: "Every plant grown under expert supervision in India's prestigious botanical gardens.",
     color: "#4ade80",
   },
   {
@@ -173,7 +173,7 @@ const testimonials = [
     name: "Ananya Patel",
     location: "Ahmedabad, Gujarat",
     rating: 5,
-    text: "Knowing these plants come from government botanical gardens gives me full confidence. The Tulsi kit came with such rich, healthy roots. Truly premium quality!",
+    text: "Knowing these plants come from botanical gardens gives me full confidence. The Tulsi kit came with such rich, healthy roots. Truly premium quality!",
     avatar: "AP",
     garden: "Medicinal Herb Collection",
   },
@@ -259,7 +259,7 @@ export function Home() {
               >
                 Nature Grown in{" "}
                 <span style={{ background: "linear-gradient(135deg, #4ade80, #86efac)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  Government
+                  Premier
                 </span>{" "}
                 Botanical Gardens
               </motion.h1>
@@ -322,7 +322,7 @@ export function Home() {
                 className="flex flex-wrap gap-4"
               >
                 {[
-                  { icon: BadgeCheck, text: "Govt. Certified" },
+                  { icon: BadgeCheck, text: "Certified" },
                   { icon: Shield, text: "Pesticide-Free" },
                   { icon: Award, text: "Botanist Approved" },
                 ].map(({ icon: Icon, text }) => (
@@ -672,7 +672,7 @@ export function Home() {
                   Grown Under the Care of India's Premier Botanical Institutions
                 </h2>
                 <p className="text-white/60 leading-relaxed mb-6">
-                  We partner exclusively with government botanical gardens including Lalbagh (Bengaluru), NBRI (Lucknow), and Acharya Jagadish Chandra Bose Botanic Garden (Kolkata) — ensuring every plant meets the highest standards of purity and quality.
+                  We partner exclusively with premier botanical gardens including Lalbagh (Bengaluru), NBRI (Lucknow), and Acharya Jagadish Chandra Bose Botanic Garden (Kolkata) — ensuring every plant meets the highest standards of purity and quality.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   {["Lalbagh, Bengaluru", "NBRI, Lucknow", "AGCBBG, Kolkata", "Sanjay Gandhi NP"].map((g) => (
@@ -687,7 +687,7 @@ export function Home() {
                 {[
                   { label: "Organic Certified", icon: BadgeCheck },
                   { label: "Pesticide-Free", icon: Shield },
-                  { label: "Govt. Authorized", icon: Award },
+                  { label: "Authorized", icon: Award },
                   { label: "Botanist Verified", icon: FlowerIcon },
                 ].map(({ label, icon: Icon }) => (
                   <motion.div

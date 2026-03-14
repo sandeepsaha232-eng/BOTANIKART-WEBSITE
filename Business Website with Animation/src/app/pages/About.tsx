@@ -14,7 +14,7 @@ const glass = {
 
 const timeline = [
   { year: "2021", title: "The Seed of an Idea", desc: "Founder Arjun Nair noticed that India's world-class botanical gardens had untapped potential — pristine plants and seeds, unavailable to the public." },
-  { year: "2022", title: "First Partnership", desc: "Signed MoU with Lalbagh Botanical Garden, Bengaluru — our first official government partnership to begin sustainable cultivation." },
+  { year: "2022", title: "First Partnership", desc: "Signed MoU with Lalbagh Botanical Garden, Bengaluru — our first official partnership to begin sustainable cultivation." },
   { year: "2023", title: "Going Digital", desc: "Launched our e-commerce platform with 50 plant varieties. First 1,000 orders shipped safely across 8 Indian states." },
   { year: "2024", title: "Scale & Impact", desc: "Expanded to 4 botanical gardens. Introduced monthly seed subscription boxes. Crossed ₹1 crore in revenue." },
   { year: "2026", title: "Today", desc: "50,000+ orders delivered. 12 botanical garden partnerships. India's most trusted botanical plant D2C brand." },
@@ -60,7 +60,7 @@ export function About() {
               </span>
             </h1>
             <p className="text-white/60 text-lg leading-relaxed max-w-2xl mx-auto">
-              BOTANIKART was founded with one mission — to bridge the gap between India's world-class government botanical gardens and the millions of home gardeners who deserve access to truly healthy, pure, certified plants.
+              BOTANIKART was founded with one mission — to bridge the gap between India's world-class botanical gardens and the millions of home gardeners who deserve access to truly healthy, pure, certified plants.
             </p>
           </motion.div>
         </div>
@@ -76,14 +76,14 @@ export function About() {
                 Bringing Botanical Excellence Directly to Your Home
               </h2>
               <p className="text-white/60 leading-relaxed mb-5">
-                India's government botanical gardens house some of the rarest and healthiest plant specimens in the world — cultivated by expert botanists with decades of knowledge. Yet most Indians have no access to these treasures.
+                India's premier botanical gardens house some of the rarest and healthiest plant specimens in the world — cultivated by expert botanists with decades of knowledge. Yet most Indians have no access to these treasures.
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
                 We changed that. By partnering directly with these institutions, we can now deliver certified, pesticide-free, organically grown plants and seeds straight to your doorstep — with the full backing of botanical science.
               </p>
               <div className="flex flex-col gap-3">
                 {[
-                  "Direct partnership with 12 government botanical gardens",
+                  "Direct partnership with 12 botanical gardens",
                   "Certified organic — no pesticides, ever",
                   "Expert botanist oversight at every stage",
                   "Packaged for safe transit of live plants",
@@ -188,7 +188,7 @@ export function About() {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <span className="text-green-400 text-sm tracking-widest uppercase">Our Partners</span>
             <h2 className="text-white mt-2" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 700 }}>
-              Government Garden Partnerships
+              Garden Partnerships
             </h2>
             <p className="text-white/50 mt-3 max-w-xl mx-auto text-sm">
               We are officially authorised to cultivate and distribute select plant varieties from these prestigious institutions.
@@ -307,7 +307,7 @@ export function About() {
             <div className="p-8 md:p-12">
               <div className="grid md:grid-cols-4 gap-6">
                 {[
-                  { step: "01", title: "Cultivation", desc: "Grown under expert supervision in govt. botanical gardens" },
+                  { step: "01", title: "Cultivation", desc: "Grown under expert supervision in botanical gardens" },
                   { step: "02", title: "Inspection", desc: "Every plant reviewed by certified botanists before harvest" },
                   { step: "03", title: "Packaging", desc: "Special breathable eco-packaging keeps plants alive in transit" },
                   { step: "04", title: "Delivery", desc: "Fragile-marked handling with morning delivery preference" },

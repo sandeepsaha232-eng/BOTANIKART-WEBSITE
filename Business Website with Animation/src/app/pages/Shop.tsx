@@ -38,6 +38,8 @@ const products = [
   { id: 7, name: "Peace Lily", category: "Indoor", type: "plant", price: 449, originalPrice: 599, rating: 4.7, reviews: 298, tag: "Air Purifier", tagColor: "#4ade80", img: housePlantsImg, garden: "Lalbagh, Bengaluru", difficulty: "Easy", available: false },
   { id: 8, name: "Neem Seeds Pack", category: "Medicinal", type: "seed", price: 149, originalPrice: 199, rating: 4.5, reviews: 112, tag: "Medicinal", tagColor: "#86efac", img: seedsImg, garden: "NBRI, Lucknow", difficulty: "Moderate", available: true },
   { id: 9, name: "Lavender Bundle", category: "Flower", type: "plant", price: 549, originalPrice: 749, rating: 4.9, reviews: 203, tag: "Fragrant", tagColor: "#c084fc", img: flowerImg, garden: "Sanjay Gandhi NP", difficulty: "Moderate", available: true },
+  { id: 10, name: "Bougainvillea Plant", category: "Outdoor", type: "plant", price: 399, originalPrice: 599, rating: 4.8, reviews: 420, tag: "Vibrant", tagColor: "#f472b6", img: flowerImg, garden: "Lalbagh, Bengaluru", difficulty: "Easy", available: true },
+  { id: 11, name: "Aloe Vera", category: "Outdoor", type: "plant", price: 199, originalPrice: 249, rating: 4.6, reviews: 890, tag: "Hardy", tagColor: "#34d399", img: housePlantsImg, garden: "NBRI, Lucknow", difficulty: "Beginner", available: true },
 ];
 
 const tabs = ["All", "Plants", "Seeds"];
@@ -54,7 +56,20 @@ export function Shop() {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [addedToCart, setAddedToCart] = useState<number[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [pincode, setPincode] = useState("");
+  const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "checking" | "available" | "invalid">("idle");
   const { addItem } = useCart();
+
+  const handlePincodeCheck = () => {
+    if (pincode.length !== 6 || !/^\d+$/.test(pincode)) {
+      setDeliveryStatus("invalid");
+      return;
+    }
+    setDeliveryStatus("checking");
+    setTimeout(() => {
+      setDeliveryStatus("available");
+    }, 800);
+  };
 
   const toggleWishlist = (id: number) =>
     setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -102,7 +117,7 @@ export function Shop() {
               Plants & Seeds Shop
             </h1>
             <p className="text-white/50 max-w-xl mx-auto">
-              Every item grown in India's government botanical gardens — certified, organic, and botanist-approved.
+              Every item grown in India's botanical gardens — certified, organic, and botanist-approved.
             </p>
           </motion.div>
         </div>
@@ -240,16 +255,29 @@ export function Shop() {
                   type="text"
                   placeholder="Enter pincode..."
                   maxLength={6}
+                  value={pincode}
+                  onChange={(e) => {
+                    setPincode(e.target.value);
+                    setDeliveryStatus("idle");
+                  }}
                   className="w-full px-3 py-2 rounded-xl text-sm text-white placeholder-white/30 outline-none mb-3"
                   style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
                 />
                 <motion.button
                   whileHover={{ scale: 1.03 }}
-                  className="w-full py-2 rounded-xl text-sm text-white"
-                  style={{ background: "rgba(74,222,128,0.2)", border: "1px solid rgba(74,222,128,0.3)" }}
+                  onClick={handlePincodeCheck}
+                  disabled={deliveryStatus === "checking"}
+                  className="w-full py-2 rounded-xl text-sm text-white transition-colors"
+                  style={{ 
+                    background: deliveryStatus === "available" ? "rgba(74,222,128,0.4)" : "rgba(74,222,128,0.2)", 
+                    border: "1px solid rgba(74,222,128,0.3)" 
+                  }}
                 >
-                  Check Availability
+                  {deliveryStatus === "checking" ? "Checking..." : deliveryStatus === "available" ? "Delivery Available ✓" : "Check Availability"}
                 </motion.button>
+                {deliveryStatus === "invalid" && (
+                  <p className="text-red-400 text-xs mt-2 text-center">Please enter a valid 6-digit pincode.</p>
+                )}
               </div>
             </div>
           </motion.aside>
@@ -388,7 +416,7 @@ export function Shop() {
               Every order includes a Plant Care Card
             </h4>
             <p className="text-white/50 text-sm">
-              Detailed sunlight requirements, watering schedule, soil type, and seasonal care tips — handwritten by our certified botanists at each government garden.
+              Detailed sunlight requirements, watering schedule, soil type, and seasonal care tips — handwritten by our certified botanists at each garden.
             </p>
           </div>
           <motion.button

@@ -45,8 +45,8 @@ const faqs = [
     a: "You can manage your subscription anytime from your account dashboard — pause, skip a month, or cancel with just one click. No questions asked.",
   },
   {
-    q: "Are your plants really grown in government botanical gardens?",
-    a: "Absolutely. We have official MoUs (Memorandums of Understanding) with 12 government botanical gardens across India. Each product listing shows which garden it's sourced from.",
+    q: "Are your plants really grown in premier botanical gardens?",
+    a: "Absolutely. We have official MoUs (Memorandums of Understanding) with 12 botanical gardens across India. Each product listing shows which garden it's sourced from.",
   },
 ];
 
