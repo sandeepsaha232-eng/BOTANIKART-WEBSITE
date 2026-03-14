@@ -12,6 +12,7 @@ import {
   Leaf,
   CheckCircle2,
 } from "lucide-react";
+import { useCart } from "../context/CartContext";
 
 const housePlantsImg = "https://images.unsplash.com/photo-1758373148976-5fe6deb51916?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvb3IlMjBob3VzZXBsYW50cyUyMHBvdHRlZCUyMGdyZWVufGVufDF8fHx8MTc3MzQ4MzYzOHww&ixlib=rb-4.1.0&q=80&w=1080";
 const herbImg = "https://images.unsplash.com/photo-1726924245031-45478195b89f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZXJiJTIwZ2FyZGVuJTIwbWVkaWNpbmFsJTIwcGxhbnRzfGVufDF8fHx8MTc3MzQ4MzYzOXww&ixlib=rb-4.1.0&q=80&w=1080";
@@ -53,13 +54,22 @@ export function Shop() {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [addedToCart, setAddedToCart] = useState<number[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  const { addItem } = useCart();
 
   const toggleWishlist = (id: number) =>
     setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
-  const addToCart = (id: number) => {
-    setAddedToCart((prev) => [...prev, id]);
-    setTimeout(() => setAddedToCart((prev) => prev.filter((x) => x !== id)), 2000);
+  const addToCart = (product: typeof products[0]) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      img: product.img,
+      category: product.category,
+    });
+    setAddedToCart((prev) => [...prev, product.id]);
+    setTimeout(() => setAddedToCart((prev) => prev.filter((x) => x !== product.id)), 2000);
   };
 
   const filtered = products.filter((p) => {
@@ -341,7 +351,7 @@ export function Shop() {
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => product.available && addToCart(product.id)}
+                            onClick={() => product.available && addToCart(product)}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-white transition-all"
                             style={addedToCart.includes(product.id)
                               ? { background: "rgba(74,222,128,0.3)", border: "1px solid rgba(74,222,128,0.5)", color: "#4ade80" }
