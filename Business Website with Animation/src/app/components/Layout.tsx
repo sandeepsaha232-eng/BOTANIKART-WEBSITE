@@ -34,11 +34,26 @@ export function Layout() {
   const [scrolled, setScrolled] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [splashDone, setSplashDone] = useState(() => {
+    // Only show splash once per session
+    return sessionStorage.getItem("botanikart_splash_done") === "true";
+  });
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
   const { items: cartItems, totalItems, totalPrice, removeItem, updateQuantity, clearCart } = useCart();
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Mark splash as done after animation
+  useEffect(() => {
+    if (!splashDone) {
+      const timer = setTimeout(() => {
+        setSplashDone(true);
+        sessionStorage.setItem("botanikart_splash_done", "true");
+      }, 2200);
+      return () => clearTimeout(timer);
+    }
+  }, [splashDone]);
 
   // Close user menu on outside click
   useEffect(() => {
@@ -112,8 +127,162 @@ export function Layout() {
           @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
           @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,30px)} }
           @keyframes float3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-30px)} }
+          @keyframes leafSpin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+          @keyframes pulseGlow { 0%,100%{box-shadow:0 0 20px rgba(74,222,128,0.4)} 50%{box-shadow:0 0 35px rgba(74,222,128,0.8), 0 0 60px rgba(74,222,128,0.3)} }
+          @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+          @keyframes particleFloat { 0%{transform:translateY(0) rotate(0deg);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-100vh) rotate(720deg);opacity:0} }
+          @keyframes borderGlow { 0%,100%{border-color:rgba(74,222,128,0.15)} 50%{border-color:rgba(74,222,128,0.4)} }
         `}</style>
       </div>
+
+      {/* Floating Particles */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${10 + i * 12}%`,
+              bottom: "-20px",
+              width: `${6 + (i % 3) * 4}px`,
+              height: `${6 + (i % 3) * 4}px`,
+              borderRadius: "50%",
+              background: i % 2 === 0 ? "rgba(74,222,128,0.3)" : "rgba(212,175,55,0.3)",
+              animation: `particleFloat ${8 + i * 2}s ease-in-out infinite`,
+              animationDelay: `${i * 1.5}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Splash Screen */}
+      <AnimatePresence>
+        {!splashDone && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center"
+            style={{
+              background: "linear-gradient(135deg, #071a0e 0%, #0d2b18 40%, #0a2210 70%, #061508 100%)",
+              perspective: "1200px",
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {/* Radial glow behind logo */}
+            <motion.div
+              className="absolute rounded-full"
+              style={{
+                width: 600,
+                height: 600,
+                background: "radial-gradient(circle, rgba(74,222,128,0.25) 0%, transparent 70%)",
+                filter: "blur(60px)",
+              }}
+              initial={{ scale: 1.5, opacity: 0.8 }}
+              animate={{ scale: 0, opacity: 0 }}
+              transition={{ duration: 1.8, ease: "easeInOut", delay: 0.3 }}
+            />
+
+            {/* Logo container that shrinks to top-left */}
+            <motion.div
+              className="flex flex-col items-center gap-4"
+              style={{ transformStyle: "preserve-3d" }}
+              initial={{
+                scale: 3,
+                opacity: 0,
+                rotateX: 15,
+                rotateY: -10,
+              }}
+              animate={{
+                scale: [0, 3, 3, 1],
+                opacity: [0, 1, 1, 1],
+                rotateX: [15, 0, 0, 0],
+                rotateY: [-10, 0, 0, 0],
+                x: [0, 0, 0, 0],
+                y: [0, 0, 0, 0],
+              }}
+              transition={{
+                duration: 2.0,
+                times: [0, 0.25, 0.65, 1],
+                ease: "easeInOut",
+              }}
+            >
+              {/* Leaf icon */}
+              <motion.div
+                className="rounded-full flex items-center justify-center"
+                style={{
+                  background: "linear-gradient(135deg, #16a34a, #4ade80)",
+                  width: 80,
+                  height: 80,
+                }}
+                animate={{
+                  boxShadow: [
+                    "0 0 30px rgba(74,222,128,0.4)",
+                    "0 0 80px rgba(74,222,128,0.8), 0 0 120px rgba(74,222,128,0.3)",
+                    "0 0 30px rgba(74,222,128,0.4)",
+                  ],
+                  rotate: [0, 360],
+                }}
+                transition={{
+                  boxShadow: { duration: 1.5, repeat: 1, ease: "easeInOut" },
+                  rotate: { duration: 2, ease: "easeInOut" },
+                }}
+              >
+                <Leaf className="w-10 h-10 text-white" />
+              </motion.div>
+
+              {/* Brand Name */}
+              <motion.div className="text-center">
+                <motion.span
+                  className="text-white block"
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: "2.5rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.05em",
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: [0, 1, 1], y: [20, 0, 0] }}
+                  transition={{ duration: 1, delay: 0.4 }}
+                >
+                  BOTANIKART
+                </motion.span>
+                <motion.span
+                  className="text-green-400 block"
+                  style={{ fontSize: "0.75rem", letterSpacing: "0.2em" }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 1, 1] }}
+                  transition={{ duration: 0.8, delay: 0.7 }}
+                >
+                  NATURE'S FINEST MARKETPLACE
+                </motion.span>
+              </motion.div>
+            </motion.div>
+
+            {/* Decorative spinning rings */}
+            <motion.div
+              className="absolute rounded-full"
+              style={{
+                width: 300,
+                height: 300,
+                border: "1px solid rgba(74,222,128,0.15)",
+              }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: [0, 2, 0], opacity: [0, 0.5, 0], rotate: [0, 180] }}
+              transition={{ duration: 2, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute rounded-full"
+              style={{
+                width: 200,
+                height: 200,
+                border: "1px solid rgba(74,222,128,0.1)",
+              }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: [0, 2.5, 0], opacity: [0, 0.3, 0], rotate: [0, -120] }}
+              transition={{ duration: 2, ease: "easeInOut", delay: 0.2 }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Navbar */}
       <motion.nav
@@ -136,28 +305,38 @@ export function Layout() {
             {/* Logo */}
             <NavLink to="/" className="flex items-center gap-2 group">
               <motion.div
-                whileHover={{ rotate: 15, scale: 1.1 }}
+                whileHover={{ rotate: 25, scale: 1.2 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="w-10 h-10 rounded-full flex items-center justify-center"
                 style={{
                   background: "linear-gradient(135deg, #16a34a, #4ade80)",
-                  boxShadow: "0 0 20px rgba(74,222,128,0.4)",
+                  animation: "pulseGlow 3s ease-in-out infinite",
                 }}
               >
-                <Leaf className="w-5 h-5 text-white" />
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                >
+                  <Leaf className="w-5 h-5 text-white" />
+                </motion.div>
               </motion.div>
               <div>
-                <span
+                <motion.span
                   className="text-white block"
                   style={{
                     fontFamily: "'Playfair Display', serif",
                     fontSize: "1.1rem",
                     fontWeight: 700,
                     lineHeight: 1.1,
+                    backgroundImage: "linear-gradient(90deg, #fff 0%, #4ade80 50%, #fff 100%)",
+                    backgroundSize: "200% auto",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    animation: "shimmer 4s linear infinite",
                   }}
                 >
                   BOTANIKART
-                </span>
+                </motion.span>
                 <span className="text-green-400 block" style={{ fontSize: "0.6rem", letterSpacing: "0.12em" }}>
                   NATURE'S FINEST MARKETPLACE
                 </span>

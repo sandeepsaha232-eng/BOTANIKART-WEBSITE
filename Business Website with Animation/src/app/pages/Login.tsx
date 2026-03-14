@@ -31,14 +31,14 @@ export function Login() {
       }
       const result = register(name, email, password);
       if (result.success) {
-        navigate("/");
+        navigate("/shop");
       } else {
         setError(result.error || "Registration failed");
       }
     } else {
       const result = login(email, password);
       if (result.success) {
-        navigate("/");
+        navigate("/shop");
       } else {
         setError(result.error || "Login failed");
       }
