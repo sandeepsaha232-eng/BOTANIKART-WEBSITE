@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "installCommand": "cd \"Business Website with Animation\" && npm install",
+  "buildCommand": "cd \"Business Website with Animation\" && npm run build",
+  "outputDirectory": "Business Website with Animation/dist",
   "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
