@@ -16,7 +16,12 @@ import {
   RefreshCw,
   BadgeCheck,
   Sparkles,
+  CheckCircle2,
 } from "lucide-react";
+import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import { useCostAnalyzer } from "../components/PlantCostAnalyzer";
 
 const heroImg = "https://images.unsplash.com/photo-1558889485-5930e200a2a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxib3RhbmljYWwlMjBnYXJkZW4lMjBsdXNoJTIwZ3JlZW4lMjBwbGFudHN8ZW58MXx8fHwxNzczNDgzNjM0fDA&ixlib=rb-4.1.0&q=80&w=1080";
 const cropsImg = "https://images.unsplash.com/photo-1760549255949-767d18981890?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmVzaCUyMHZlZ2V0YWJsZSUyMGNyb3BzJTIwaGFydmVzdCUyMGZhcm18ZW58MXx8fHwxNzczNDgzNjM0fDA&ixlib=rb-4.1.0&q=80&w=1080";
@@ -206,6 +211,11 @@ function useCountUp(target: number, duration: number = 2000) {
 export function Home() {
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [addedToCart, setAddedToCart] = useState<number[]>([]);
+  const { isAuthenticated } = useAuth();
+  const { addItem } = useCart();
+  const navigate = useNavigate();
+  const { analyzePlant } = useCostAnalyzer();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -586,6 +596,7 @@ export function Home() {
                 onHoverStart={() => setHoveredProduct(product.id)}
                 onHoverEnd={() => setHoveredProduct(null)}
                 whileHover={{ scale: 1.03, y: -4 }}
+                onClick={() => analyzePlant(product)}
                 className="rounded-3xl overflow-hidden cursor-pointer transition-all duration-300"
                 style={hoveredProduct === product.id ? glassHover : glass}
               >
@@ -629,10 +640,35 @@ export function Home() {
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isAuthenticated) {
+                          navigate("/login");
+                          return;
+                        }
+                        addItem({
+                          id: product.id,
+                          name: product.name,
+                          price: product.price,
+                          originalPrice: product.originalPrice,
+                          img: product.img,
+                          category: product.category,
+                        });
+                        setAddedToCart((prev) => [...prev, product.id]);
+                        setTimeout(() => setAddedToCart((prev) => prev.filter((x) => x !== product.id)), 2000);
+                      }}
                       className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                      style={{ background: "linear-gradient(135deg, #16a34a, #4ade80)" }}
+                      style={
+                        addedToCart.includes(product.id)
+                          ? { background: "rgba(74,222,128,0.3)", border: "1px solid rgba(74,222,128,0.5)", color: "#4ade80" }
+                          : { background: "linear-gradient(135deg, #16a34a, #4ade80)" }
+                      }
                     >
-                      +
+                      {addedToCart.includes(product.id) ? (
+                        <CheckCircle2 className="w-4 h-4" />
+                      ) : (
+                        "+"
+                      )}
                     </motion.button>
                   </div>
                 </div>
@@ -902,6 +938,11 @@ export function Home() {
           </motion.div>
         </div>
       </section>
+      <footer className="py-8 text-center">
+        <p className="text-white/30 text-sm">
+          © {new Date().getFullYear()} BOTANIKART. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 }

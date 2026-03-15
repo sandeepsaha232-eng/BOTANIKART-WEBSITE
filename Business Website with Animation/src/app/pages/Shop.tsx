@@ -12,7 +12,10 @@ import {
   Leaf,
   CheckCircle2,
 } from "lucide-react";
+import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { useCostAnalyzer } from "../components/PlantCostAnalyzer";
 
 const housePlantsImg = "https://images.unsplash.com/photo-1758373148976-5fe6deb51916?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvb3IlMjBob3VzZXBsYW50cyUyMHBvdHRlZCUyMGdyZWVufGVufDF8fHx8MTc3MzQ4MzYzOHww&ixlib=rb-4.1.0&q=80&w=1080";
 const herbImg = "https://images.unsplash.com/photo-1726924245031-45478195b89f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZXJiJTIwZ2FyZGVuJTIwbWVkaWNpbmFsJTIwcGxhbnRzfGVufDF8fHx8MTc3MzQ4MzYzOXww&ixlib=rb-4.1.0&q=80&w=1080";
@@ -59,6 +62,9 @@ export function Shop() {
   const [pincode, setPincode] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "checking" | "available" | "invalid">("idle");
   const { addItem } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const { analyzePlant } = useCostAnalyzer();
 
   const handlePincodeCheck = () => {
     if (pincode.length !== 6 || !/^\d+$/.test(pincode)) {
@@ -75,6 +81,10 @@ export function Shop() {
     setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
   const addToCart = (product: typeof products[0]) => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     addItem({
       id: product.id,
       name: product.name,
@@ -319,6 +329,7 @@ export function Shop() {
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ delay: i * 0.05 }}
                       whileHover={{ scale: 1.03, y: -4 }}
+                      onClick={() => analyzePlant(product)}
                       className="rounded-3xl overflow-hidden cursor-pointer group"
                       style={glass}
                     >
@@ -341,16 +352,18 @@ export function Shop() {
                           </div>
                         )}
 
-                        {/* Wishlist */}
-                        <motion.button
-                          whileHover={{ scale: 1.2 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
-                          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full transition-all"
-                          style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)" }}
-                        >
-                          <Heart className={`w-4 h-4 transition-colors ${wishlist.includes(product.id) ? "fill-red-400 text-red-400" : "text-white/60"}`} />
-                        </motion.button>
+                        {/* Wishlist & Analyze */}
+                        <div className="absolute top-3 right-3 flex flex-col gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
+                            className="w-8 h-8 flex items-center justify-center rounded-full transition-all"
+                            style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)" }}
+                          >
+                            <Heart className={`w-4 h-4 transition-colors ${wishlist.includes(product.id) ? "fill-red-400 text-red-400" : "text-white/60"}`} />
+                          </motion.button>
+                        </div>
 
                         {/* Garden */}
                         <div className="absolute bottom-3 left-3 px-2 py-0.5 rounded-md text-xs text-white/60" style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)" }}>
@@ -379,7 +392,7 @@ export function Shop() {
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => product.available && addToCart(product)}
+                            onClick={(e) => { e.stopPropagation(); product.available && addToCart(product); }}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-white transition-all"
                             style={addedToCart.includes(product.id)
                               ? { background: "rgba(74,222,128,0.3)", border: "1px solid rgba(74,222,128,0.5)", color: "#4ade80" }
